@@ -1,0 +1,6 @@
+FROM tensorflow/tensorflow:latest-gpu-jupyter
+
+# Install packages
+RUN conda install -yq \
+        gcc \
+        xeus-cling -c conda-forge 

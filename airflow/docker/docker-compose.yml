@@ -1,0 +1,110 @@
+version: '2.1'
+services:
+    redis:
+        image: 'redis:5.0.5'
+        networks: 
+            - airflow
+        command: redis-server --requirepass ${REDIS_PASSWORD}
+
+    postgres:
+        image: postgres:9.6
+        networks: 
+            - airflow
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
+            - PGDATA=${POSTGRES_CONTAINER_VOLUME}
+        volumes:
+            - ${POSTGRES_HOST_VOLUME}:${POSTGRES_CONTAINER_VOLUME}
+
+    webserver:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - postgres
+            - redis
+        networks: 
+            - airflow
+        environment:
+            - LOAD_EX=${LOAD_EX}
+            - FERNET_KEY=${LOAD_EX}
+            - EXECUTOR=Celery
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        volumes:
+            - ${DAGS_HOST_VOLUME}:/usr/local/airflow/dags
+            - ${COMMON_DATA_HOST_VOLUME}:${COMMON_DATA_CONTAINER_VOLUME}
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        ports:
+            - "8081:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+
+    flower:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - redis
+        networks: 
+            - airflow
+        environment:
+            - EXECUTOR=Celery
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        ports:
+            - "5555:5555"
+        command: flower
+
+    scheduler:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - webserver
+        networks: 
+            - airflow
+        volumes:
+            - ${DAGS_HOST_VOLUME}:/usr/local/airflow/dags
+            - ${COMMON_DATA_HOST_VOLUME}:${COMMON_DATA_CONTAINER_VOLUME}
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        environment:
+            - LOAD_EX=${LOAD_EX}
+            - FERNET_KEY=${LOAD_EX}
+            - EXECUTOR=Celery
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        command: scheduler
+
+    worker:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - scheduler
+        networks: 
+            - airflow
+        volumes:
+            - ${DAGS_HOST_VOLUME}:/usr/local/airflow/dags
+            - ${COMMON_DATA_HOST_VOLUME}:${COMMON_DATA_CONTAINER_VOLUME}
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        environment:
+            - FERNET_KEY=${FERNET_KEY}
+            - EXECUTOR=Celery
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        command: worker
+
+networks:
+    airflow:
+        name: airflow
