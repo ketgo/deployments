@@ -1,13 +1,3 @@
-# Copyright (c) Jupyter Development Team.
-# Distributed under the terms of the Modified BSD License.
-ARG JUPYTERHUB_VERSION
-FROM jupyterhub/jupyterhub-onbuild:$JUPYTERHUB_VERSION
-
-# Install dockerspawner, oauth, postgres
-RUN /opt/conda/bin/conda update -n root conda && \
-    /opt/conda/bin/conda install -yq psycopg2=2.7 && \
-    /opt/conda/bin/conda clean -tipsy && \
-    /opt/conda/bin/pip install --no-cache-dir \
-        oauthenticator==0.8.* \
-        dockerspawner==0.9.* \
-        jupyterlab~=2.0
+version https://git-lfs.github.com/spec/v1
+oid sha256:6987751ea5b354a4d9c614477b991497f40d82d85206755359f5f7402c9267d1
+size 505
