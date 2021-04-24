@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+    ml-workspace-gpu:
+        image: mltooling/ml-workspace-gpu:0.12.1
+        container_name: ml-workspace-gpu
+        runtime: nvidia
+        restart: always
+        networks:
+            - app_vnet
+        environment:
+            NVIDIA_VISIBLE_DEVICES: all
+        volumes:
+            - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
+            - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME}
+
+networks:
+    app_vnet:
+        name: ml-workspace-gpu
