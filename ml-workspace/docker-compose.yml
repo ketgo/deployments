@@ -4,12 +4,21 @@ services:
     ml-workspace-gpu:
         image: mltooling/ml-workspace-gpu:0.12.1
         container_name: ml-workspace-gpu
-        runtime: nvidia
         restart: always
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
         networks:
             - app_vnet
+        ports:
+            - "${HOST_PORT}:8080"
         environment:
             NVIDIA_VISIBLE_DEVICES: all
+            WORKSPACE_AUTH_USER: "ketan"
+            # NOTE: Use storng password when hosting on a public domain!
+            WORKSPACE_AUTH_PASSWORD: "password"
         volumes:
             - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
             - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME}
