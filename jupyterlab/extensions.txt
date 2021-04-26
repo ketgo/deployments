@@ -1,0 +1,4 @@
+# Jupyter Lab Extensions
+
+jupyterlab-drawio
+jupyterlab_code_formatter

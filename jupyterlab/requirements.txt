@@ -1,0 +1,9 @@
+# ---
+# Common packages
+# ---
+#
+# Add common packages to install here.
+
+# Testing Packages
+pytest
+pytest-cov

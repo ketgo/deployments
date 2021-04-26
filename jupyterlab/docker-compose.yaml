@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+
+  jupyter-ml:
+    build:
+      context: .
+    restart: always
+    image: jupyterlab
+    container_name: jupyterlab
+    environment:
+      PYTHONPATH: ${MODULES_CONTAINER_VOLUME}
+      JUPYTER_ENABLE_LAB: "yes"
+    env_file:
+      - .env
+    networks:
+      - app_vnet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME:-./data}
+      - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
+      - ${MODULES_HOST_VOLUME}:${MODULES_CONTAINER_VOLUME}
+    ports:
+      - "${HOST_PORT:-8888}:8888"
+
+networks:
+  app_vnet:
+    name: jupyterlab
