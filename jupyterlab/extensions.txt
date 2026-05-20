@@ -2,3 +2,6 @@
 
 jupyterlab-drawio
 jupyterlab_code_formatter
+
+# LLM
+tiktoken
