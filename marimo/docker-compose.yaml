@@ -1,0 +1,24 @@
+services:
+
+  marimo:
+    image: ghcr.io/marimo-team/marimo:latest
+    container_name: marimo
+    restart: always
+    command: ["marimo", "edit", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
+    environment:
+      PYTHONPATH: ${MODULES_CONTAINER_VOLUME}
+    env_file:
+      - .env
+    networks:
+      - app_vnet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME}
+      - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
+      - ${MODULES_HOST_VOLUME}:${MODULES_CONTAINER_VOLUME}
+    ports:
+      - "${HOST_PORT:-2718}:2718"
+
+networks:
+  app_vnet:
+    name: marimo

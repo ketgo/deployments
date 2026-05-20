@@ -1,0 +1,37 @@
+# LiteLLM model routing config
+#
+# Maps model names (including "gpt-4o" which VS Code Copilot requests by default)
+# to local Ollama models. Edit the ollama/* model references to swap models without
+# changing any VS Code settings.
+#
+# After editing this file, restart LiteLLM:
+#   docker compose restart litellm
+
+model_list:
+
+  # VS Code Copilot Agent Mode requests "gpt-4o" — remap it to your best local model.
+  # qwen2.5-coder:7b is recommended for code tasks; swap to :32b if you have VRAM.
+  - model_name: gpt-4o
+    litellm_params:
+      model: ollama/qwen2.5-coder:7b
+      api_base: http://ollama:11434
+
+  # Explicit model aliases — usable from Open WebUI or API clients
+  - model_name: llama3.2
+    litellm_params:
+      model: ollama/llama3.2
+      api_base: http://ollama:11434
+
+  - model_name: qwen2.5-coder
+    litellm_params:
+      model: ollama/qwen2.5-coder:7b
+      api_base: http://ollama:11434
+
+  - model_name: deepseek-r1
+    litellm_params:
+      model: ollama/deepseek-r1:8b
+      api_base: http://ollama:11434
+
+general_settings:
+  # Change this key and set LITELLM_MASTER_KEY in .env for any non-local exposure
+  master_key: sk-local-dev-key

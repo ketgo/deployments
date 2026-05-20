@@ -1,0 +1,70 @@
+services:
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    environment:
+      OLLAMA_HOST: 0.0.0.0
+    env_file:
+      - .env
+    networks:
+      - app_vnet
+    volumes:
+      - ${OLLAMA_DATA_HOST_VOLUME:-/data/ollama}:/root/.ollama
+      - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
+      - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME}
+    ports:
+      - "${OLLAMA_HOST_PORT:-11434}:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm
+    restart: always
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml:ro
+    environment:
+      LITELLM_MASTER_KEY: sk-local-dev-key
+    env_file:
+      - .env
+    networks:
+      - app_vnet
+    ports:
+      - "${LITELLM_HOST_PORT:-4000}:4000"
+    depends_on:
+      - ollama
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    environment:
+      # Point at LiteLLM so the WebUI also benefits from model aliases
+      OPENAI_API_BASE_URL: http://litellm:4000/v1
+      OPENAI_API_KEY: sk-local-dev-key
+      WEBUI_AUTH: "false"
+    env_file:
+      - .env
+    networks:
+      - app_vnet
+    volumes:
+      - open-webui-data:/app/backend/data
+    ports:
+      - "${WEBUI_HOST_PORT:-3000}:8080"
+    depends_on:
+      - litellm
+
+volumes:
+  open-webui-data:
+
+networks:
+  app_vnet:
+    name: ai-infra
