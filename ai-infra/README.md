@@ -20,10 +20,14 @@ Three-service stack for running LLMs locally:
 sudo mkdir -p /data/ollama /data/ai-infra
 sudo chown $USER /data/ollama /data/ai-infra
 
-# Pull the models used in litellm_config.yaml
-docker exec -it ollama ollama pull qwen2.5-coder:7b   # used as gpt-4o alias
-docker exec -it ollama ollama pull llama3.2            # general chat
+# Pull models (RTX PRO 6000 Blackwell — 96 GB VRAM)
+docker exec -it ollama ollama pull qwen2.5-coder:32b   # ~19 GB (Q4) — VS Code Agent Mode default
+docker exec -it ollama ollama pull llama3.3:70b         # ~42 GB (Q4) — general reasoning + chat
+docker exec -it ollama ollama pull deepseek-r1:70b      # ~42 GB (Q4) — planning / multi-step reasoning
 ```
+
+Both `qwen2.5-coder:32b` and `llama3.3:70b` fit in VRAM simultaneously (~61 GB combined at Q4).
+Swap `qwen2.5-coder:32b` for `qwen2.5-coder:32b:q8_0` if you want near-fp16 quality (~34 GB Q8).
 
 ## Start
 
@@ -68,15 +72,21 @@ then restart:
 docker compose restart litellm
 ```
 
-Good choices for agent mode (require tool-calling support):
+Good choices for agent mode on this system (RTX PRO 6000 Blackwell — 96 GB VRAM):
 
-| Model | Pull command | VRAM | Notes |
+| Model | VRAM (Q4) | VRAM (Q8) | Notes |
 |---|---|---|---|
-| `qwen2.5-coder:7b` | `ollama pull qwen2.5-coder:7b` | ~5 GB | Fast, great for code |
-| `qwen2.5-coder:32b` | `ollama pull qwen2.5-coder:32b` | ~20 GB | Best code quality |
-| `llama3.1:8b` | `ollama pull llama3.1:8b` | ~5 GB | General purpose |
-| `deepseek-r1:8b` | `ollama pull deepseek-r1:8b` | ~5 GB | Strong reasoning |
-| `mistral-nemo` | `ollama pull mistral-nemo` | ~7 GB | Tool calling, multilingual |
+| `qwen2.5-coder:32b` | ~19 GB | ~34 GB | **Default** — best code + tool calling |
+| `llama3.3:70b` | ~42 GB | ~74 GB | Best general reasoning, tool calling |
+| `deepseek-r1:70b` | ~42 GB | ~74 GB | Best multi-step planning |
+| `qwen2.5:72b` | ~46 GB | ~76 GB | General chat at 70B scale |
+
+Q8 quantization is near-fp16 quality — use it when a model fits. Pull with explicit tag:
+
+```bash
+docker exec -it ollama ollama pull qwen2.5-coder:32b          # Q4 (default)
+docker exec -it ollama ollama pull qwen2.5-coder:32b:q8_0     # Q8 (recommended on this machine)
+```
 
 ## No GPU?
 

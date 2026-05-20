@@ -1,35 +1,51 @@
 # LiteLLM model routing config
 #
+# System: Intel i7-14700K, 125 GB RAM, NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM)
+#
 # Maps model names (including "gpt-4o" which VS Code Copilot requests by default)
 # to local Ollama models. Edit the ollama/* model references to swap models without
 # changing any VS Code settings.
 #
 # After editing this file, restart LiteLLM:
 #   docker compose restart litellm
+#
+# Pull commands (run after starting the stack):
+#   docker exec -it ollama ollama pull qwen2.5-coder:32b   # ~19 GB Q4 / ~34 GB Q8
+#   docker exec -it ollama ollama pull llama3.3:70b         # ~42 GB Q4 / ~74 GB Q8
+#   docker exec -it ollama ollama pull deepseek-r1:70b      # ~42 GB Q4 / ~74 GB Q8
 
 model_list:
 
-  # VS Code Copilot Agent Mode requests "gpt-4o" — remap it to your best local model.
-  # qwen2.5-coder:7b is recommended for code tasks; swap to :32b if you have VRAM.
+  # VS Code Copilot Agent Mode: gpt-4o → qwen2.5-coder:32b
+  # 32B at Q8 uses ~34 GB VRAM — leaves ~60 GB free for a second model.
+  # Best-in-class for code, full tool/function-calling support.
   - model_name: gpt-4o
     litellm_params:
-      model: ollama/qwen2.5-coder:7b
+      model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
 
-  # Explicit model aliases — usable from Open WebUI or API clients
-  - model_name: llama3.2
+  # gpt-4o-mini alias → same model (Copilot sometimes requests this for lighter tasks)
+  - model_name: gpt-4o-mini
     litellm_params:
-      model: ollama/llama3.2
+      model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
 
-  - model_name: qwen2.5-coder
+  # Explicit aliases for Open WebUI / direct API use
+  - model_name: qwen2.5-coder:32b
     litellm_params:
-      model: ollama/qwen2.5-coder:7b
+      model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
 
-  - model_name: deepseek-r1
+  # 70B general-purpose model — strong reasoning, tool calling, fits in VRAM at Q4 (~42 GB)
+  - model_name: llama3.3:70b
     litellm_params:
-      model: ollama/deepseek-r1:8b
+      model: ollama/llama3.3:70b
+      api_base: http://ollama:11434
+
+  # DeepSeek R1 70B — best for multi-step reasoning / planning tasks
+  - model_name: deepseek-r1:70b
+    litellm_params:
+      model: ollama/deepseek-r1:70b
       api_base: http://ollama:11434
 
 general_settings:
