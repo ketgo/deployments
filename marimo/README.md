@@ -11,23 +11,19 @@ docker compose up -d
 
 Open http://localhost:2718 in your browser.
 
-## First-time setup
-
-Create the data directory before starting:
-
-```bash
-sudo mkdir -p /data/marimo && sudo chown $USER /data/marimo
-```
-
 ## Volumes
 
-| `.env` variable | Default | Container path | Purpose |
-|---|---|---|---|
-| `DATA_HOST_VOLUME` | `/data/marimo` | `~/data` | Datasets / outputs |
-| `PROJECTS_HOST_VOLUME` | `$HOME/Projects` | `~/projects` | Notebooks |
-| `MODULES_HOST_VOLUME` | `$PWD` | `~/modules` | Shared Python packages |
+All paths live on the NVMe (`/mnt/m2-0/machine_learning/`) and are shared with JupyterLab
+so notebooks, datasets, and outputs are accessible from either tool.
 
-Edit `.env` before first start to override any path.
+| `.env` variable | Host path | Container path | Purpose |
+|---|---|---|---|
+| `DATA_HOST_VOLUME` | `/mnt/m2-0/machine_learning/data` | `~/data` | Datasets (read) |
+| `PROJECTS_HOST_VOLUME` | `/mnt/m2-0/machine_learning/ml-projects` | `~/projects` | Notebooks (read/write) |
+| `OUTPUT_HOST_VOLUME` | `/mnt/m2-0/machine_learning/output` | `~/output` | Trained models, results (write) |
+| `MODULES_HOST_VOLUME` | `$PWD` (repo dir) | `~/modules` | Shared Python packages |
+
+These directories already exist on the host — no setup needed before first start.
 
 ## Creating a notebook
 
@@ -36,6 +32,9 @@ From the Marimo UI click **New notebook**, or from a host terminal:
 ```bash
 docker exec -it marimo marimo edit ~/projects/my_notebook.py
 ```
+
+Notebooks saved to `~/projects/` persist to `ml-projects/` on the NVMe.
+Save trained model checkpoints to `~/output/` so they land in `machine_learning/output/`.
 
 ## Stopping
 
