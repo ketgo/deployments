@@ -23,11 +23,12 @@ All services share the same three host-path volume variables, set in each servic
 
 | Variable | Default container path | Purpose |
 |---|---|---|
-| `DATA_HOST_VOLUME` | `~/data` | Datasets, outputs |
+| `DATA_HOST_VOLUME` | `~/data` | Datasets, raw inputs |
 | `PROJECTS_HOST_VOLUME` | `~/projects` | Source code / notebooks |
 | `MODULES_HOST_VOLUME` | `~/modules` | Shared Python packages |
+| `OUTPUT_HOST_VOLUME` | `~/output` | Trained model artifacts, results |
 
-Always use these three vars. Don't invent new volume variables.
+Always use these four vars. Don't invent new volume variables.
 
 ## Network Convention
 

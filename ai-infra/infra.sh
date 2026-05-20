@@ -7,8 +7,7 @@ cd "$SCRIPT_DIR"
 # Load .env so we can read volume paths
 set -a; source .env; set +a
 
-OLLAMA_DATA="${OLLAMA_DATA_HOST_VOLUME:-/data/ollama}"
-AI_DATA="${DATA_HOST_VOLUME:-/data/ai-infra}"
+OLLAMA_DATA="${OLLAMA_DATA_HOST_VOLUME:-/mnt/m2-0/machine_learning/llm-models}"
 
 # Models to pull after Ollama starts — edit this list to add/remove models
 MODELS=(
@@ -53,7 +52,7 @@ cmd="${1:-}"
 case "$cmd" in
   start)
     echo "==> Creating host directories on NVMe (/mnt/m2-0)..."
-    mkdir -p "$OLLAMA_DATA"
+    mkdir -p "$OLLAMA_DATA" "${DATA_HOST_VOLUME}" "${PROJECTS_HOST_VOLUME}"
 
     echo "==> Starting services..."
     docker compose up -d

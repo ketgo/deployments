@@ -18,10 +18,10 @@ so notebooks, datasets, and outputs are accessible from either tool.
 
 | `.env` variable | Host path | Container path | Purpose |
 |---|---|---|---|
-| `DATA_HOST_VOLUME` | `/mnt/m2-0/machine_learning/data` | `~/data` | Datasets (read) |
-| `PROJECTS_HOST_VOLUME` | `/mnt/m2-0/machine_learning/ml-projects` | `~/projects` | Notebooks (read/write) |
-| `OUTPUT_HOST_VOLUME` | `/mnt/m2-0/machine_learning/output` | `~/output` | Trained models, results (write) |
-| `MODULES_HOST_VOLUME` | `$PWD` (repo dir) | `~/modules` | Shared Python packages |
+| `DATA_HOST_VOLUME` | `/mnt/m2-0/machine_learning/data` | `/home/appuser/data` | Datasets (read) |
+| `PROJECTS_HOST_VOLUME` | `/mnt/m2-0/machine_learning/ml-projects` | `/home/appuser/projects` | Notebooks (read/write) |
+| `OUTPUT_HOST_VOLUME` | `/mnt/m2-0/machine_learning/output` | `/home/appuser/output` | Trained models, results (write) |
+| `MODULES_HOST_VOLUME` | `$PWD` (repo dir) | `/home/appuser/modules` | Shared Python packages |
 
 These directories already exist on the host — no setup needed before first start.
 

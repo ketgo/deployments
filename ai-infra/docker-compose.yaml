@@ -11,9 +11,7 @@ services:
     networks:
       - app_vnet
     volumes:
-      - ${OLLAMA_DATA_HOST_VOLUME:-/data/ollama}:/root/.ollama
-      - ${PROJECTS_HOST_VOLUME}:${PROJECTS_CONTAINER_VOLUME}
-      - ${DATA_HOST_VOLUME}:${DATA_CONTAINER_VOLUME}
+      - ${OLLAMA_DATA_HOST_VOLUME:-/mnt/m2-0/machine_learning/llm-models}:/root/.ollama
     ports:
       - "${OLLAMA_HOST_PORT:-11434}:11434"
     deploy:
