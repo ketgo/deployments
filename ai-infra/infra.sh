@@ -53,8 +53,8 @@ cmd="${1:-}"
 case "$cmd" in
   start)
     echo "==> Creating host directories on NVMe (/mnt/m2-0)..."
-    sudo mkdir -p "$OLLAMA_DATA" "$AI_DATA"
-    sudo chown "$USER" "$OLLAMA_DATA" "$AI_DATA"
+    sudo mkdir -p "$OLLAMA_DATA"
+    sudo chown "$USER" "$OLLAMA_DATA"
 
     echo "==> Starting services..."
     docker compose up -d
