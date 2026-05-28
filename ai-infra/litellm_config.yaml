@@ -23,30 +23,63 @@ model_list:
     litellm_params:
       model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: true
+      supports_vision: false
 
   # gpt-4o-mini alias → same model (Copilot sometimes requests this for lighter tasks)
   - model_name: gpt-4o-mini
     litellm_params:
       model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: true
+      supports_vision: false
 
   # Explicit aliases for Open WebUI / direct API use
   - model_name: qwen2.5-coder:32b
     litellm_params:
       model: ollama/qwen2.5-coder:32b
       api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: true
+      supports_vision: false
 
   # 70B general-purpose model — strong reasoning, tool calling, fits in VRAM at Q4 (~42 GB)
   - model_name: llama3.3:70b
     litellm_params:
       model: ollama/llama3.3:70b
       api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: true
+      supports_vision: false
 
   # DeepSeek R1 70B — best for multi-step reasoning / planning tasks
+  # Ollama doesn't tag deepseek-r1 with "tools" in its manifest, so model_info is required
+  # to override LiteLLM's capability DB and advertise function calling support.
   - model_name: deepseek-r1:70b
     litellm_params:
       model: ollama/deepseek-r1:70b
       api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: false
+      supports_vision: false
+
+  # DeepSeek R1 70B with 64k context — same weights, expanded context window
+  # Build with: ./infra.sh create  (or automatically on: ./infra.sh start)
+  - model_name: deepseek-r1-heavy
+    litellm_params:
+      model: ollama/deepseek-r1-heavy
+      api_base: http://ollama:11434
+    model_info:
+      supports_function_calling: true
+      supports_parallel_function_calling: false
+      supports_vision: false
 
 general_settings:
   # Change this key and set LITELLM_MASTER_KEY in .env for any non-local exposure

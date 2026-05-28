@@ -1,0 +1,49 @@
+FROM deepseek-r1:70b
+PARAMETER num_ctx 65536
+
+# Preserves DeepSeek's native token format while adding tool-calling support.
+# Based on the working qwen2.5-coder template pattern but adapted for DeepSeek tokens.
+# Gemini's ChatML (<|im_start|>) template is wrong for this model architecture.
+TEMPLATE """{{- if .System }}{{ .System }}
+{{- end }}
+{{- if .Tools }}
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures:
+{{- range .Tools }}
+{"type": "function", "function": {{ .Function }}}
+{{- end }}
+
+For each function call, return a json object within <tool_call></tool_call> with NO other text:
+<tool_call>
+{"name": <function-name>, "arguments": <args-json-object>}
+</tool_call>
+{{- end }}
+{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 }}
+{{- if eq .Role "user" }}<｜User｜>{{ .Content }}
+{{- else if eq .Role "tool" }}<｜User｜><tool_response>
+{{ .Content }}
+</tool_response>
+{{- else if eq .Role "assistant" }}<｜Assistant｜>
+{{- if and $.IsThinkSet (and $last .Thinking) }}<think>
+{{ .Thinking }}
+</think>{{ end }}
+{{- if .ToolCalls }}<tool_call>
+{{ range .ToolCalls }}{"name": "{{ .Function.Name }}", "arguments": {{ .Function.Arguments }}}
+{{ end }}</tool_call>{{- else }}{{ .Content }}{{- end }}{{- if not $last }}<｜end▁of▁sentence｜>{{ end }}
+{{- end }}
+{{- if and $last (ne .Role "assistant") }}<｜Assistant｜>
+{{- if and $.IsThinkSet (not $.Think) }}<think>
+
+</think>
+
+{{ end }}{{- end }}{{- end }}"""
+
+PARAMETER stop <｜begin▁of▁sentence｜>
+PARAMETER stop <｜end▁of▁sentence｜>
+PARAMETER stop <｜User｜>
+PARAMETER stop <｜Assistant｜>

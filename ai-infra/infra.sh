@@ -17,11 +17,12 @@ MODELS=(
 )
 
 usage() {
-  echo "Usage: $0 {start|stop|pull|status}"
+  echo "Usage: $0 {start|stop|pull|create|status}"
   echo ""
-  echo "  start   Create volumes, start all services, pull models"
+  echo "  start   Create volumes, start all services, pull models, create custom models"
   echo "  stop    Stop all services"
   echo "  pull    Pull/update models (stack must be running)"
+  echo "  create  Build custom models from modelfiles/ (stack must be running)"
   echo "  status  Show running containers and loaded Ollama models"
   exit 1
 }
@@ -48,6 +49,19 @@ pull_models() {
   echo "All models pulled."
 }
 
+create_models() {
+  local modelfiles_dir="$SCRIPT_DIR/modelfiles"
+  for mf in "$modelfiles_dir"/*.Modelfile; do
+    [[ -e "$mf" ]] || continue
+    local name
+    name="$(basename "$mf" .Modelfile)"
+    echo "Creating custom model: $name from $(basename "$mf")..."
+    docker cp "$mf" ollama:/tmp/"$(basename "$mf")"
+    docker exec ollama ollama create "$name" -f /tmp/"$(basename "$mf")"
+  done
+  echo "All custom models created."
+}
+
 cmd="${1:-}"
 case "$cmd" in
   start)
@@ -59,6 +73,7 @@ case "$cmd" in
 
     wait_for_ollama
     pull_models
+    create_models
 
     echo ""
     echo "Stack is up:"
@@ -76,6 +91,11 @@ case "$cmd" in
   pull)
     wait_for_ollama
     pull_models
+    ;;
+
+  create)
+    wait_for_ollama
+    create_models
     ;;
 
   status)
